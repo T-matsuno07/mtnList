@@ -17,8 +17,11 @@ void mtnList_add(mtnListS *argList, void *argValue){
 
   new_node = (mtnNode*)malloc(sizeof(mtnNode));
   memset(new_node, 0x00, sizeof(mtnNode));
-
+#ifdef DEBUG
+  printf("   Add  malloc = %x \n", (unsigned int)new_node);
+#endif
   new_node->p_Next = NULL;
+  new_node->p_Content = argValue;
 
   /* リストに既存のノードが存在するか否かで処理分岐 */
   if(argList->top == NULL){
@@ -39,14 +42,66 @@ void mtnList_add(mtnListS *argList, void *argValue){
 }
 
 int mtnList_insert(mtnListS *argList, int argIndex, void *argValue){
-  return 0;
+  mtnNode *newNode;
+  mtnNode *currentNode;
+  int iLoop = 0;
+  /* 引数の異常チェック */
+  if( (argList->count < argIndex ) || ( argIndex < 0 ) ){
+    /* 引数が異常の場合、戻り値に異常値を設定して処理終了 */
+    return -1;
+  }
+
+  /* 挿入箇所が終端ノードの場合、add処理と同等 */
+  if( argIndex == argList->count ){
+    /* add処理を呼ぶ */
+    mtnList_add(argList, argValue);
+    return (argList->count);
+  }
+
+  /* 先頭ノード取得 */
+  currentNode = argList->top;
+  /* 挿入するノードのメモリを確保 */
+  newNode = (mtnNode *)malloc(sizeof(mtnNode));
+  /* 新規ノードメモリ領域を初期化 */
+  memset(newNode, 0x00, sizeof(mtnNode));
+  /* 新規ノードの値を設定 */
+  newNode->p_Content = argValue;
+  /* リストのノード数をインクリメント */
+  argList->count++;
+
+#ifdef DEBUG
+  printf("   Ins  malloc = %x \n", (unsigned int)newNode);
+#endif
+  
+
+  /* 挿入箇所が先頭ノードの場合 */
+  if( argIndex == 0 ){
+    /* 挿入ノードの次ノードに既存の先頭ノードを設定 */
+    newNode->p_Next = currentNode;
+    /* リストの先頭ノードポインタに挿入ノードを設定 */
+    argList->top = newNode;
+    return (argList->count);
+  }
+  /* 処理ノードを挿入箇所まで進める */
+  while( iLoop < (argIndex  -1 )){
+    /* ノードを進める */
+    currentNode = currentNode->p_Next;
+    iLoop++;
+  }
+
+  /* 挿入ノードの次ノードに既存ノードの次ノードを設定 */  
+  newNode->p_Next = currentNode->p_Next;
+  /* 処理ノードの次ノードに挿入ノードを設定 */
+  currentNode->p_Next = newNode;
+  return (argList->count);
+  
 }
 
 
 void mtnList_freeNode(mtnNode *argNode){
+
 #ifdef DEBUG
-  printf("  free Node contents  %x", (unsigned int) argNode->p_Content);
-  printf("  free Node Base      %x", (unsigned int) argNode);  
+  printf("   free Node   = %x \n", (unsigned int)argNode);
 #endif
   /* ノードの要素を解放 */
   free(argNode->p_Content);
@@ -187,5 +242,17 @@ int mtnList_delete(mtnListS *argList, int argIndex){
   /* 削除処理後のノード数を戻り値に指定して処理終了(正常終了) */
   return (argList->count);
 
+}
+
+void mtnList_DBG_print(mtnListS* argList){
+  int iloop = 0;
+  int *pValue;
+  printf("Contents Size   = %d \n", argList->contentsSize);
+  printf("Contents Length = %d \n", argList->count);
+
+  for(iloop = 0; iloop < argList->count ; iloop++){
+    pValue = (int*)mtnList_get(argList, iloop);
+    printf("[%03d]  %4d \n", iloop, *pValue);
+  }
 }
 

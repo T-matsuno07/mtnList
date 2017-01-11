@@ -90,5 +90,14 @@ void* mtnList_get(mtnListS*, int);
  */
 int mtnList_delete(mtnListS*, int);
 
+/*
+ * @name   : (デバッグプリント処理)
+ * @param1 : デバッグ出力対象リスト
+ * @return : void
+ * @abst   : 引数で受け取ったリストの内容を表示する
+ */
+
+void mtnList_DBG_print(mtnListS*);
+
 #endif
 
