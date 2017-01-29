@@ -53,3 +53,5 @@ void mtnMemInputFile(char*);
 
 void mtnMemDGBPrint();
 
+void mtnMemReadPrint();
+

@@ -4,6 +4,7 @@
 
 int main(void){
   mtnMemInputFile("abc.dmp");
+  mtnMemReadPrint();
   return 1;
 }
 

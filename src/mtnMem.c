@@ -143,7 +143,7 @@ void mtnMemInputFile(char* argPath){
   for(iLoop = 0; iLoop < iReadCount; iLoop++){
     resObj = (mtnRes*)malloc(sizeof(resObj));
     fread( &(resObj->size), sizeof(unsigned int), 1, fp );
-    fread(resObj->p_origin, sizeof(void*), 1, fp);
+    fread(&(resObj->p_origin), sizeof(void*), 1, fp);
     resObj->p_restor = (void*)malloc(resObj->size);
     fread(resObj->p_restor, resObj->size, 1, fp);
     mtnList_add(&_rest_memory, resObj);
@@ -165,6 +165,19 @@ void mtnMemDGBPrint(){
     curObj = mtnList_get(&_list_memory, iLoop);
     p_value = curObj->p_obj;
     printf("Indx[%4d] Size[%5d] Addr[0x%8x] ", (int)iLoop, (int)curObj->size,  (unsigned int)(curObj->p_obj) & (0xFFFFFFFF));
+    printf("value = %3d (0x%8x) " , *p_value, (*p_value) & (0xFFFFFFFF));
+    printf("\n");
+  }
+}
+
+void mtnMemReadPrint(){
+  unsigned int iLoop; /* 繰り返処理用変数 */
+  int *p_value; /* 出力対象ポインタ */
+  mtnRes *curObj;
+  for(iLoop = 0; iLoop < _rest_memory.count; iLoop++){
+    curObj = mtnList_get(&_rest_memory, iLoop);
+    p_value = curObj->p_restor;
+    printf("Indx[%4d] Size[%5d] Addr[0x%8x] -> Origin[0x%8x] ", (int)iLoop, (int)curObj->size,  (unsigned int)(curObj->p_restor) & (0xFFFFFFFF), (unsigned int)(curObj->p_origin) & (0xFFFFFFFF));
     printf("value = %3d (0x%8x) " , *p_value, (*p_value) & (0xFFFFFFFF));
     printf("\n");
   }

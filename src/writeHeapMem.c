@@ -9,7 +9,7 @@ int main(void){
   int *pp_5;
   int *pp_7;
 
-  printf("void* = %d \n", sizeof(void*));
+  printf("void* = %lu \n", sizeof(void*));
   
   for(iLoop = 0; iLoop < 20; iLoop++){
     foo = mtnMalloc(sizeof(int));
