@@ -11,11 +11,14 @@ void mtnList_Initialize(mtnListS *argList, size_t argSize){
   argList->contentsSize = argSize;
 }
 
-void mtnList_add(mtnListS *argList, void *argValue){
+int mtnList_add(mtnListS *argList, void *argValue){
   mtnNode *but_node;
   mtnNode *new_node;
 
   new_node = (mtnNode*)malloc(sizeof(mtnNode));
+  if(new_node == NULL){
+    return 0; /* 異常終了 */
+  }
   memset(new_node, 0x00, sizeof(mtnNode));
 #ifdef DEBUG
   printf("   Add  malloc = %x \n", (unsigned int)new_node);
@@ -39,23 +42,25 @@ void mtnList_add(mtnListS *argList, void *argValue){
     /* リストの要素数をインクリメント */
     argList->count++;
   }
+  return 1; /* 正常終了 */
 }
 
-int mtnList_insert(mtnListS *argList, int argIndex, void *argValue){
+int mtnList_insert(mtnListS *argList, unsigned int argIndex, void *argValue){
   mtnNode *newNode;
   mtnNode *currentNode;
   int iLoop = 0;
+  int iRtn = 0;
   /* 引数の異常チェック */
-  if( (argList->count < argIndex ) || ( argIndex < 0 ) ){
+  if( argList->count < argIndex  ){
     /* 引数が異常の場合、戻り値に異常値を設定して処理終了 */
-    return -1;
+    return 0;
   }
 
   /* 挿入箇所が終端ノードの場合、add処理と同等 */
   if( argIndex == argList->count ){
     /* add処理を呼ぶ */
-    mtnList_add(argList, argValue);
-    return (argList->count);
+    iRtn = mtnList_add(argList, argValue);
+    return iRtn; 
   }
 
   /* 先頭ノード取得 */
@@ -80,7 +85,7 @@ int mtnList_insert(mtnListS *argList, int argIndex, void *argValue){
     newNode->p_Next = currentNode;
     /* リストの先頭ノードポインタに挿入ノードを設定 */
     argList->top = newNode;
-    return (argList->count);
+    return 1; /* 正常終了 */
   }
   /* 処理ノードを挿入箇所まで進める */
   while( iLoop < (argIndex  -1 )){
@@ -93,7 +98,7 @@ int mtnList_insert(mtnListS *argList, int argIndex, void *argValue){
   newNode->p_Next = currentNode->p_Next;
   /* 処理ノードの次ノードに挿入ノードを設定 */
   currentNode->p_Next = newNode;
-  return (argList->count);
+  return 1; /* 正常終了 */
   
 }
 
@@ -140,7 +145,7 @@ void mtnList_Clear(mtnListS *argList){
   return;  
 }
 
-void* mtnList_get(mtnListS *argList, int argIndex){
+void* mtnList_get(mtnListS *argList, unsigned int argIndex){
   mtnNode *current_node; /* 処理用ノード */
   int loop = 0; /* ループ処理用変数 */
   /* 第一引数異常チェック */
@@ -156,8 +161,8 @@ void* mtnList_get(mtnListS *argList, int argIndex){
   }
 
   /* 第2引数の異常チェック */
-  if ( (argList->count <= argIndex) || (argIndex < 0 ) ){
-    /* 第2引数が負の値 or リストの要素数より大きいインデックスを指定している場合 */
+  if ( argList->count <= argIndex ){
+    /* リストの要素数より大きいインデックスを指定している場合 */
     /* 当該要素が存在しないので異常終了 */
     return NULL;
   }
@@ -176,7 +181,7 @@ void* mtnList_get(mtnListS *argList, int argIndex){
   return (void *)current_node->p_Content;
 }
 
-int mtnList_delete(mtnListS *argList, int argIndex){
+int mtnList_delete(mtnListS *argList,unsigned int argIndex){
   mtnNode *current_Node;  /* 処理対象ノード */
   mtnNode *previous_Node; /* 処理対象ノードの一つ前 */
   int loop = 0; /* ループ処理用変数 */
@@ -184,26 +189,26 @@ int mtnList_delete(mtnListS *argList, int argIndex){
     /* 第一引数異常チェック */
   if( argList == NULL){
     /* 引数がNULLポインタなら異常終了 */
-    return -1;
+    return 0;
   }
 
   /* リストに要素が入っているかをチェック */
   if( argList->count == 0 ){
     /* 要素が空の場合は異常終了 */
-    return -1;
+    return 0;
   }
 
   /* 第2引数の異常チェック */
-  if ( (argList->count <= argIndex) || (argIndex < 0 ) ){
+  if ( argList->count <= argIndex ){
     /* 第2引数が負の値 or リストの要素数より大きいインデックスを指定している場合 */
     /* 当該要素が存在しないので異常終了 */
-    return -1;
+    return 0;
   }
 
   /* リストのノード数が1かつ削除対象ノードが先頭の場合，リストクリア処理 */
   if ( (argList->count == 1 ) && (argIndex == 0 ) ){
     mtnList_Clear(argList); /* 全要素削除(クリア) */
-    return 0;               /* 要素数0を返す      */
+    return 1;               /* 要素数0を返す      */
   }
 
   /* 削除対象ノードが先頭ノードの場合の処理 */
@@ -212,7 +217,7 @@ int mtnList_delete(mtnListS *argList, int argIndex){
     argList->top = current_Node->p_Next; /* リストの先頭ポインタを2番目のノードに合わせる */
     mtnList_freeNode(current_Node);      /* 先頭ノードを解放 */
     argList->count--;                    /* リストの要素数をデクリメント */
-    return (argList->count);             /* 要素削除後のリストのノード数を戻り値に指定して処理終了 */
+    return 1; /* 正常終了 */
   }
 
   /* 第2引数で指定された番号まで処理対象ノードを進める */
@@ -239,9 +244,7 @@ int mtnList_delete(mtnListS *argList, int argIndex){
     mtnList_freeNode(current_Node);  /* 終端ノードを解放 */
     argList->count--;                /* リストの要素数をデクリメント */
   }
-  /* 削除処理後のノード数を戻り値に指定して処理終了(正常終了) */
-  return (argList->count);
-
+  return 1; /* 正常終了 */
 }
 
 void mtnList_DBG_print(mtnListS* argList){
@@ -254,5 +257,18 @@ void mtnList_DBG_print(mtnListS* argList){
     pValue = (int*)mtnList_get(argList, iloop);
     printf("[%03d]  %4d \n", iloop, *pValue);
   }
+}
+
+void* mtnList_convertArray(mtnListS* argList){
+  void *rtnArray;   /* 戻り値用配列 */
+  int iLoop;        /* 繰り返し処理用変数 */
+  mtnNode* curNode; /* 処理中のノード */
+  rtnArray = (void *)malloc((size_t) argList->contentsSize * argList->count);
+  curNode = argList->top;
+  for(iLoop = 0; iLoop < argList->count; iLoop++){
+    memcpy(&rtnArray[ iLoop * argList->contentsSize ], curNode->p_Content, (size_t) argList->contentsSize);
+    curNode = curNode->p_Next;
+  }
+  return rtnArray;    
 }
 

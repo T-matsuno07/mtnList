@@ -13,7 +13,7 @@ struct _mtn_node{
 typedef struct _mtn_node mtnNode;
 
 struct _mtn_list{
-  int count;       /* 格納している要素数 */
+  unsigned int count;       /* 格納している要素数 */
   unsigned int contentsSize; /* ノードの要素サイズ */
   mtnNode *top;    /* 先頭ノードへのポインタ */
   mtnNode *buttom; /* 終端ノードへのポインタ */
@@ -34,20 +34,20 @@ void mtnList_Initialize(mtnListS*, size_t);
  * @name   : mtnList_add (リストの末尾へ要素追加)
  * @param1 : 要素を追加するリスト
  * @param2 : リストの末尾に追加する要素へのポインタ
- * @return : 処理結果 true:正常 false:異常
+ * @return : 処理結果 1:正常終了 0:異常終了
  * @abst   : 第1引数で受け取ったリストの末尾に第2引数の要素を追加する
  */
-void mtnList_add(mtnListS*, void*);
+int mtnList_add(mtnListS*, void*);
 
 /*
  * @name   : mtnList_insert(リストへの要素挿入)
  * @param1 : ノードを挿入するリスト
  * @param2 : ノードを挿入する場所
  * @param3 : 挿入するノードの要素
- * @return : 要素を挿入した後のノード数
+ * @return : 処理結果 1:正常終了 0:異常終了
  * @abst   : 第2引数で指定した箇所に第3引数の要素を持つノードを挿入する
  */
-int mtnList_insert(mtnListS*, int, void*);
+int mtnList_insert(mtnListS*, unsigned int, void*);
 
 /*
  * @name   : mtnList_freeNode (リスト解放)
@@ -79,19 +79,29 @@ void mtnList_Clear(mtnListS*);
  * 引数の指定方法などに不備があるときなどは全て戻り値がNULLとなる。
  * 本メソッドを用いるときは，戻り値のNULL判定を実施することを推奨する。
  */
-void* mtnList_get(mtnListS*, int);
+void* mtnList_get(mtnListS*, unsigned int);
 
 /*
  * @name   : mtnList_delete(ノード削除処理)
  * @param1 : 要素を削除する対象リスト
  * @param2 : 削除する要素の番号(先頭要素は0)
- * @return : 削除後のリストのノード数 処理異常が発生した場合は-1
+ * @return : 処理結果 1:正常終了 0:異常終了
  * @abst   : 第2引数で指定された番号のノードを削除する。
  */
-int mtnList_delete(mtnListS*, int);
+int mtnList_delete(mtnListS*, unsigned int);
 
 /*
- * @name   : (デバッグプリント処理)
+ * @name   : mtnList_convertArray (配列変換処理)
+ * @param1 : 配列に変換する変換元リスト
+ * @param2 : 
+ * @return : 変換した配列へのポインタ
+ * @abst   : 引数で受け取ったリストを変換した配列
+ */
+void* mtnList_convertArray(mtnListS*);
+
+
+/*
+ * @name   : mtnList_DBG_print(デバッグプリント処理)
  * @param1 : デバッグ出力対象リスト
  * @return : void
  * @abst   : 引数で受け取ったリストの内容を表示する
